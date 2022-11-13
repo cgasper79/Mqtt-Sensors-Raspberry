@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
 
+from os import error, path
 import random
 import time
 import yaml
 from paho.mqtt import client as mqtt_client
 import json
+import pathlib
+import argparse
+import threading
+import signal
+
 
 
 settings = {}
@@ -51,7 +57,20 @@ def publish(client):
 
 if __name__ == '__main__':
 
-    with open('config.yml', 'r') as file:
+    try:
+        args = argparse.PARSER().parse_args()
+        settings_file = args.settings
+    except:
+        print('Attempting to find settings file in same folder as ' + str(__file__))
+        default_settings_path = str(pathlib.Path(__file__).parent.resolve()) + '/config.yml'
+        if path.isfile(default_settings_path):
+            print('Config file found, attempting to continue...')
+            settings_file = default_settings_path
+        else:
+            print('Could not find config.yml. Please check the documentation')
+            exit()
+
+    with open(settings_file, 'r') as file:
         settings = yaml.load(file, Loader=yaml.FullLoader)
 
     broker = settings ['mqtt']['broker']

@@ -10,10 +10,9 @@ import json
 settings = {}
 
 def get_cpu_temp():
-    #tempFile = open( "/sys/class/thermal/thermal_zone0/temp" )
-    tempFile = 33000
-    #cpu_temp = tempFile.read()
-    #tempFile.close()
+    tempFile = open( "/sys/class/thermal/thermal_zone0/temp" )
+    cpu_temp = tempFile.read()
+    tempFile.close()
     return float(tempFile)/1000
 
 def connect_mqtt():

@@ -1,0 +1,11 @@
+mqtt:
+  broker: 'your_broker'
+  port: 1883
+  topic: 'your_topic'
+  username: 'user'
+  password: 'pass'
+
+deviceName: test
+client_id: test
+timezone: Europe/Madrid
+update_interval: 1

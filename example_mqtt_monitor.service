@@ -1,0 +1,8 @@
+[Unit]
+Description=System Sensor service
+After=multi-user.target
+
+[Service]
+User=pi
+Type=idle
+ExecStart=/usr/bin/python3 /home/pi/scripts/mqtt/mqtt_monitor.py /home/pi/scripts/mqtt/config.yml

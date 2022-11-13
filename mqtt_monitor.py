@@ -2,42 +2,44 @@
 
 import random
 import time
+import yaml
 from paho.mqtt import client as mqtt_client
 import json
 
 
-broker = '192.168.1.140'
-port = 1883
-topic = "servers/artemisa"
-client_id = f'homeassistant-artemisa-{random.randint(0, 1000)}'
-username = 'guest'
-password = '123456'
+settings = {}
 
 def get_cpu_temp():
-    tempFile = open( "/sys/class/thermal/thermal_zone0/temp" )
-    cpu_temp = tempFile.read()
-    tempFile.close()
-    return float(cpu_temp)/1000
+    #tempFile = open( "/sys/class/thermal/thermal_zone0/temp" )
+    tempFile = 33000
+    #cpu_temp = tempFile.read()
+    #tempFile.close()
+    return float(tempFile)/1000
 
 def connect_mqtt():
+
     def on_connect(client, userdata, flags, rc):
         if rc == 0:
             print("Connected to MQTT Broker!")
+            print (client_id)
         else:
             print("Failed to connect, return code %d\n", rc)
+
     # Set Connecting Client ID
     client = mqtt_client.Client(client_id)
     client.username_pw_set(username, password)
     client.on_connect = on_connect
-    client.connect(broker, port)
+    client.connect(broker , port)
+   
     return client
 
 def publish(client):
     
     datos = round(get_cpu_temp())
     data_out = json.dumps(datos) # encode object to JSON
+
     while True:
-        time.sleep(60)
+        time.sleep(settings ['update_interval'])
         msg = f"{data_out}"
         result = client.publish(topic, msg)
         # result: [0, 1]
@@ -47,14 +49,22 @@ def publish(client):
         else:
             print(f"Failed to send message to topic {topic}")
         
-def run():
-    client = connect_mqtt()
-    client.loop_start()
-    publish(client)
-
 
 if __name__ == '__main__':
-    run()  
+
+    with open('config.yml', 'r') as file:
+        settings = yaml.load(file, Loader=yaml.FullLoader)
+
+    broker = settings ['mqtt']['broker']
+    port = settings ['mqtt']['port']
+    username = settings ['mqtt']['username']
+    password = settings ['mqtt']['password']
+    topic = settings ['mqtt']['topic']
+    client_id = settings ['client_id']
+
+    client = connect_mqtt()
+    client.loop_start()
+    publish(client) 
 
 
 

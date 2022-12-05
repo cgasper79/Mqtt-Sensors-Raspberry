@@ -5,6 +5,7 @@ import random
 import time
 import yaml
 from paho.mqtt import client as mqtt_client
+import psutil
 import json
 import pathlib
 import argparse
@@ -16,10 +17,23 @@ import signal
 settings = {}
 
 def get_cpu_temp():
-    tempFile = open( "/sys/class/thermal/thermal_zone0/temp" )
-    cpu_temp = tempFile.read()
-    tempFile.close()
-    return float(cpu_temp)/1000
+    temp = 0
+    try:
+        t = psutil.sensors_temperatures()
+        for x in ['cpu-thermal', 'cpu_thermal', 'coretemp', 'soc_thermal']:
+            if x in t:
+                temp = t[x][0].current
+                break
+    except Exception as e:
+            print('Could not establish CPU temperature reading: ' + str(e))
+            raise
+    return round(temp, 1)
+
+    # Otra opción para raspberryt
+    #tempFile = open( "/sys/class/thermal/thermal_zone0/temp" )
+    #cpu_temp = tempFile.read()
+    #tempFile.close()
+    #return float(cpu_temp)/1000
 
 def connect_mqtt():
 

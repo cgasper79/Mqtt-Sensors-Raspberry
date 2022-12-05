@@ -35,6 +35,12 @@ def get_cpu_temp():
     #tempFile.close()
     #return float(cpu_temp)/1000
 
+def get_cpu_usage():
+    return str(psutil.cpu_percent(interval=None))
+
+def get_memory_usage():
+    return str(psutil.virtual_memory().percent)
+
 def connect_mqtt():
 
     def on_connect(client, userdata, flags, rc):
@@ -54,7 +60,7 @@ def connect_mqtt():
 
 def publish(client):
     
-    datos = round(get_cpu_temp())
+    datos = {"temperature_cpu":get_cpu_temp(), "cpu_usage": get_cpu_usage(), "memory_usage":get_memory_usage()}
     data_out = json.dumps(datos) # encode object to JSON
 
     while True:

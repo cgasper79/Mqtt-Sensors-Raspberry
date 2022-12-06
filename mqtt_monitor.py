@@ -29,7 +29,7 @@ def get_cpu_temp():
             raise
     return round(temp, 1)
 
-    # Otra opción para raspberryt
+    #Otra opción para raspberry
     #tempFile = open( "/sys/class/thermal/thermal_zone0/temp" )
     #cpu_temp = tempFile.read()
     #tempFile.close()
@@ -59,11 +59,11 @@ def connect_mqtt():
     return client
 
 def publish(client):
-    
-    datos = {"temperature_cpu":get_cpu_temp(), "cpu_usage": get_cpu_usage(), "memory_usage":get_memory_usage()}
-    data_out = json.dumps(datos) # encode object to JSON
 
     while True:
+        datos = {"temperature_cpu": "0", "cpu_usage": get_cpu_usage(), "memory_usage":get_memory_usage()}
+        data_out = json.dumps(datos) # encode object to JSON
+        print ("Cogemos datos")
         time.sleep(settings ['update_interval'])
         msg = f"{data_out}"
         result = client.publish(topic, msg)
@@ -103,6 +103,7 @@ if __name__ == '__main__':
     client = connect_mqtt()
     client.loop_start()
     publish(client) 
+    
 
 
 

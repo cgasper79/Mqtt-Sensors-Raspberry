@@ -11,6 +11,7 @@ import pathlib
 import argparse
 import threading
 import signal
+import datetime
 
 
 
@@ -55,13 +56,16 @@ def connect_mqtt():
     client.username_pw_set(username, password)
     client.on_connect = on_connect
     client.connect(broker , port)
-   
     return client
+
+def get_last_boot():
+
+    return str(datetime.datetime.fromtimestamp(psutil.boot_time()).strftime("%d-%m-%Y %H:%M:%S"))
 
 def publish(client):
 
     while True:
-        datos = {"temperature_cpu": get_cpu_temp(), "cpu_usage": get_cpu_usage(), "memory_usage":get_memory_usage()}
+        datos = {"temperature_cpu": get_cpu_temp(), "cpu_usage": get_cpu_usage(), "memory_usage":get_memory_usage(), "last_boot":get_last_boot()}
         data_out = json.dumps(datos) # encode object to JSON
         print ("Cogemos datos")
         time.sleep(settings ['update_interval'])
@@ -99,6 +103,7 @@ if __name__ == '__main__':
     password = settings ['mqtt']['password']
     topic = settings ['mqtt']['topic']
     client_id = settings ['client_id']
+    timezone = settings ['timezone'] 
 
     client = connect_mqtt()
     client.loop_start()

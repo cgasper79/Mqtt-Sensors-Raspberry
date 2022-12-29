@@ -5,21 +5,42 @@ import random
 import time
 import yaml
 from paho.mqtt import client as mqtt_client
+import psutil
 import json
 import pathlib
 import argparse
 import threading
 import signal
+import datetime
 
 
 
 settings = {}
 
 def get_cpu_temp():
-    tempFile = open( "/sys/class/thermal/thermal_zone0/temp" )
-    cpu_temp = tempFile.read()
-    tempFile.close()
-    return float(cpu_temp)/1000
+    temp = 0
+    try:
+        t = psutil.sensors_temperatures()
+        for x in ['cpu-thermal', 'cpu_thermal', 'coretemp', 'soc_thermal']:
+            if x in t:
+                temp = t[x][0].current
+                break
+    except Exception as e:
+            print('Could not establish CPU temperature reading: ' + str(e))
+            raise
+    return round(temp, 1)
+
+    #Otra opción para raspberry
+    #tempFile = open( "/sys/class/thermal/thermal_zone0/temp" )
+    #cpu_temp = tempFile.read()
+    #tempFile.close()
+    #return float(cpu_temp)/1000
+
+def get_cpu_usage():
+    return str(psutil.cpu_percent(interval=None))
+
+def get_memory_usage():
+    return str(psutil.virtual_memory().percent)
 
 def connect_mqtt():
 
@@ -35,15 +56,18 @@ def connect_mqtt():
     client.username_pw_set(username, password)
     client.on_connect = on_connect
     client.connect(broker , port)
-   
     return client
 
+def get_last_boot():
+
+    return str(datetime.datetime.fromtimestamp(psutil.boot_time()).strftime("%d-%m-%Y %H:%M:%S"))
+
 def publish(client):
-    
-    datos = round(get_cpu_temp())
-    data_out = json.dumps(datos) # encode object to JSON
 
     while True:
+        datos = {"temperature_cpu": get_cpu_temp(), "cpu_usage": get_cpu_usage(), "memory_usage":get_memory_usage(), "last_boot":get_last_boot()}
+        data_out = json.dumps(datos) # encode object to JSON
+        print ("Cogemos datos")
         time.sleep(settings ['update_interval'])
         msg = f"{data_out}"
         result = client.publish(topic, msg)
@@ -79,10 +103,12 @@ if __name__ == '__main__':
     password = settings ['mqtt']['password']
     topic = settings ['mqtt']['topic']
     client_id = settings ['client_id']
+    timezone = settings ['timezone'] 
 
     client = connect_mqtt()
     client.loop_start()
     publish(client) 
+    
 
 
 

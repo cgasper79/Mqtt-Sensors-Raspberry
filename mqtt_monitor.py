@@ -42,6 +42,7 @@ def get_cpu_usage():
 def get_memory_usage():
     return str(psutil.virtual_memory().percent)
 
+
 def connect_mqtt():
 
     def on_connect(client, userdata, flags, rc):
@@ -50,13 +51,33 @@ def connect_mqtt():
             print (client_id)
         else:
             print("Failed to connect, return code %d\n", rc)
+            
+    isConnected = False
 
-    # Set Connecting Client ID
-    client = mqtt_client.Client(client_id)
-    client.username_pw_set(username, password)
-    client.on_connect = on_connect
-    client.connect(broker , port)
+    while (isConnected == False):
+        
+        # Set Connecting Client ID
+        client = mqtt_client.Client(client_id)
+        client.username_pw_set(username, password)
+        client.on_connect = on_connect
+
+        try:
+            client.connect(broker , port)
+            isConnected = True
+
+        except TimeoutError:
+            print('Servidor Mqtt no disponible - TimeOut')
+            time.sleep(60)
+            isConnected = False
+            
+        except OSError:
+            print ('Servidor Mqtt no disponible - Host Down')
+            time.sleep(60)
+            isConnected = False
+   
     return client
+    
+   
 
 def get_last_boot():
 
@@ -66,6 +87,7 @@ def publish(client):
 
     while True:
         datos = {"temperature_cpu": get_cpu_temp(), "cpu_usage": get_cpu_usage(), "memory_usage":get_memory_usage(), "last_boot":get_last_boot()}
+        #datos = { "cpu_usage": get_cpu_usage(), "memory_usage":get_memory_usage(), "last_boot":get_last_boot()}
         data_out = json.dumps(datos) # encode object to JSON
         print ("Cogemos datos")
         time.sleep(settings ['update_interval'])

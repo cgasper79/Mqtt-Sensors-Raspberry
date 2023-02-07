@@ -86,8 +86,8 @@ def get_last_boot():
 def publish(client):
 
     while True:
-        #datos = {"temperature_cpu": get_cpu_temp(), "cpu_usage": get_cpu_usage(), "memory_usage":get_memory_usage(), "last_boot":get_last_boot()}
-        datos = { "cpu_usage": get_cpu_usage(), "memory_usage":get_memory_usage(), "last_boot":get_last_boot()}
+        datos = {"temperature_cpu": get_cpu_temp(), "cpu_usage": get_cpu_usage(), "memory_usage":get_memory_usage(), "last_boot":get_last_boot()}
+        #datos = { "cpu_usage": get_cpu_usage(), "memory_usage":get_memory_usage(), "last_boot":get_last_boot()}
         data_out = json.dumps(datos) # encode object to JSON
         print ("Cogemos datos")
         time.sleep(settings ['update_interval'])

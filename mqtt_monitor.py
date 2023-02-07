@@ -27,7 +27,7 @@ def get_cpu_temp():
                 break
     except Exception as e:
             print('Could not establish CPU temperature reading: ' + str(e))
-            raise
+
     return round(temp, 1)
 
     #Otra opción para raspberry
@@ -51,34 +51,26 @@ def connect_mqtt():
             print (client_id)
         else:
             print("Failed to connect, return code %d\n", rc)
-            
-    isConnected = False
-
-    while (isConnected == False):
-        
-        # Set Connecting Client ID
-        client = mqtt_client.Client(client_id)
-        client.username_pw_set(username, password)
-        client.on_connect = on_connect
-
+                 
+    # Set Connecting Client ID
+    client = mqtt_client.Client(client_id)
+    client.username_pw_set(username, password)
+    client.on_connect = on_connect
+    
+    while True:
         try:
             client.connect(broker , port)
-            isConnected = True
-
+            break
         except TimeoutError:
-            print('Servidor Mqtt no disponible - TimeOut')
-            time.sleep(60)
-            isConnected = False
-            
+            print('Mqtt Server - TimeOut')
+            time.sleep(60)              
         except OSError:
-            print ('Servidor Mqtt no disponible - Host Down')
+            print ('Mqtt Server - Host Down')
             time.sleep(60)
-            isConnected = False
-   
+            
     return client
     
    
-
 def get_last_boot():
 
     return str(datetime.datetime.fromtimestamp(psutil.boot_time()).strftime("%d-%m-%Y %H:%M:%S"))
@@ -87,9 +79,7 @@ def publish(client):
 
     while True:
         datos = {"temperature_cpu": get_cpu_temp(), "cpu_usage": get_cpu_usage(), "memory_usage":get_memory_usage(), "last_boot":get_last_boot()}
-        #datos = { "cpu_usage": get_cpu_usage(), "memory_usage":get_memory_usage(), "last_boot":get_last_boot()}
         data_out = json.dumps(datos) # encode object to JSON
-        print ("Cogemos datos")
         time.sleep(settings ['update_interval'])
         msg = f"{data_out}"
         result = client.publish(topic, msg)

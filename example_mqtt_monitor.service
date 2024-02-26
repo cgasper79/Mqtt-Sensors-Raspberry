@@ -1,8 +1,12 @@
 [Unit]
-Description=System Sensor service
-After=multi-user.target
+Description=Raspberry Pi Monitor Mqtt
+After=network.target
 
 [Service]
 User=pi
 Type=idle
-ExecStart=/usr/bin/python3 /home/pi/scripts/mqtt/mqtt_monitor.py /home/pi/scripts/mqtt/config.yml
+ExecStart=/usr/bin/python3 /path/to/Mqtt-Sensors-Raspberry/mqtt_monitor.py
+WorkingDirectory=/path/to/Mqtt-Sensors-Raspberry
+
+[Install]
+WantedBy=multi-user.target

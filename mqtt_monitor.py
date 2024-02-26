@@ -73,7 +73,7 @@ def get_last_boot():
 def publish(client):
 
     while True:
-        datos = {"temperature_cpu": get_cpu_temp(), "cpu_usage": get_cpu_usage(), "memory_usage":get_memory_usage(), "last_boot":get_last_boot()}
+        datos = {"Version": version ,"temperature_cpu": get_cpu_temp(), "cpu_usage": get_cpu_usage(), "memory_usage":get_memory_usage(), "last_boot":get_last_boot()}
         data_out = json.dumps(datos) # encode object to JSON
         time.sleep(random.randint(1,settings ['update_interval']))
         msg = f"{data_out}"
@@ -111,6 +111,7 @@ if __name__ == '__main__':
     topic = settings ['mqtt']['topic']
     client_id = settings ['client_id']
     timezone = settings ['timezone'] 
+    version = settings ['version_fw']
 
     client = connect_mqtt()
     client.loop_start()

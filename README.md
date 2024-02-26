@@ -55,8 +55,59 @@ This is a simple Python program designed to monitor the temperature, last boot, 
     python mqtt_monitor.py
     ```
 
-
 The program will display real-time information about CPU temperature, CPU usage, and available memory, and publish this data to an MQTT topic.
+
+## Automatic Startup Configuration
+
+To configure the Raspberry Pi Monitor to start automatically when the Raspberry Pi boots up, you can create a systemd service unit.
+
+1. Create a new service unit file raspberry-pi-monitor.service in the /etc/systemd/system directory:
+
+    ```bash
+    sudo nano /etc/systemd/system/mqtt_monitor.service
+    ``` 
+
+2. Add the following configuration to the file:
+
+   ```
+   [Unit]
+    Description=Raspberry Pi Monitor Mqtt
+    After=network.target
+
+    [Service]
+    User=pi
+    Type=idle
+    ExecStart=/usr/bin/python3 /path/to/Mqtt-Sensors-Raspberry/mqtt_monitor.py
+    WorkingDirectory=/path/to/Mqtt-Sensors-Raspberry
+
+    [Install]
+    WantedBy=multi-user.target
+   ```
+Replace /path/to/raspberry-pi-monitor with the actual path to your Raspberry Pi Monitor directory.
+
+3. Save and close the file.
+
+4. Reload systemd to load the new service unit:
+
+    ```bash
+    sudo systemctl daemon-reload
+    ``` 
+
+5. Enable the service to start on boot:
+
+    ```bash
+    sudo systemctl enable mqtt_monitor
+    ``` 
+
+6. You can use service to start, stop or restart:
+
+    ```bash
+    sudo service mqtt_monitor start
+    sudo service mqtt_monitor stop
+    sudo service mqtt_monitor restart
+    sudo service mqtt_monitor enable
+    ``` 
+
 
 ## Contributions
 

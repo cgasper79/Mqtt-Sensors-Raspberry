@@ -9,4 +9,4 @@ deviceName: test
 client_id: test
 timezone: Europe/Madrid
 update_interval: 1
-version_fw: 'v1.0'
+version_fw: 'v1.1'

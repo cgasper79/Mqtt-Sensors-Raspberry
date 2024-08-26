@@ -40,7 +40,7 @@ def get_memory_usage():
 
 def get_version_so():
     tempFile = open( "/etc/debian_version")
-    version_so = tempFile.read()
+    version_so = tempFile.read(5)
     tempFile.close()
     return version_so
 
@@ -80,7 +80,7 @@ def get_last_boot():
 def publish(client):
 
     while True:
-        datos = {"FW": version ,"Version_SO": get_version_so(),"temperature_cpu": get_cpu_temp(), "cpu_usage": get_cpu_usage(), "memory_usage":get_memory_usage(), "last_boot":get_last_boot()}
+        datos = {"SW": version ,"Version_SO": get_version_so(),"temperature_cpu": get_cpu_temp(), "cpu_usage": get_cpu_usage(), "memory_usage":get_memory_usage(), "last_boot":get_last_boot()}
         data_out = json.dumps(datos) # encode object to JSON
         time.sleep(random.randint(1,settings ['update_interval']))
         msg = f"{data_out}"
